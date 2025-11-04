@@ -32,7 +32,7 @@ export function PhotoViewer({
   onIndexChange,
   onDeletePhoto,
 }: PhotoViewerProps) {
-  const [imageUrl, setImageUrl] = useState<string>('');
+  const [imageUrls, setImageUrls] = useState<Map<string, string>>(new Map());
   const [scale, setScale] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [showUI, setShowUI] = useState(true);
@@ -72,12 +72,22 @@ export function PhotoViewer({
     };
   }, [carouselApi, onIndexChange]);
 
+  // Create object URLs for all photos
   useEffect(() => {
-    if (!currentPhoto) return;
-    const url = URL.createObjectURL(currentPhoto.blob);
-    setImageUrl(url);
-    return () => URL.revokeObjectURL(url);
-  }, [currentPhoto]);
+    if (!isOpen || photos.length === 0) return;
+
+    const newUrls = new Map<string, string>();
+    photos.forEach((photo) => {
+      const url = URL.createObjectURL(photo.blob);
+      newUrls.set(photo.id, url);
+    });
+
+    setImageUrls(newUrls);
+
+    return () => {
+      newUrls.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [isOpen, photos]);
 
   useEffect(() => {
     setScale(1);
@@ -377,13 +387,13 @@ export function PhotoViewer({
                       opacity: isClosing ? closingOpacity : undefined,
                     }}
                   >
-                    {index === currentIndex && (
+                    {imageUrls.get(photo.id) && (
                       <motion.img
-                        src={imageUrl}
+                        src={imageUrls.get(photo.id)}
                         alt={photo.filename}
                         className="max-w-[100vw] max-h-[100vh] w-auto h-auto object-contain select-none"
                         style={{
-                          transform: scale > 1
+                          transform: scale > 1 && index === currentIndex
                             ? `translate(${position.x / scale}px, ${position.y / scale}px)`
                             : undefined,
                         }}
