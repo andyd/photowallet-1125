@@ -142,17 +142,23 @@ export default function PhotoView() {
     const confirmDelete = window.confirm('Remove this photo from your wallet?');
     if (!confirmDelete) return;
 
+    // Calculate next photo BEFORE deleting
+    let nextPhotoId: string | null = null;
+    if (photos.length > 1) {
+      // Try next photo first, then previous
+      const nextIndex = currentIndex < photos.length - 1 ? currentIndex + 1 : currentIndex - 1;
+      const nextPhoto = photos[nextIndex];
+      if (nextPhoto && nextPhoto.id !== id) {
+        nextPhotoId = nextPhoto.id;
+      }
+    }
+
+    // Delete the photo
     await deletePhoto(id);
     
     // Navigate to next photo or back to album
-    if (photos.length > 1) {
-      const nextIndex = currentIndex < photos.length - 1 ? currentIndex : currentIndex - 1;
-      const nextPhoto = photos[nextIndex];
-      if (nextPhoto && nextPhoto.id !== id) {
-        navigate(`/photo/${nextPhoto.id}`, { replace: true });
-      } else {
-        navigate('/album');
-      }
+    if (nextPhotoId) {
+      navigate(`/photo/${nextPhotoId}`, { replace: true });
     } else {
       navigate('/album');
     }
