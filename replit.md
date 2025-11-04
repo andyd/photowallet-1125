@@ -6,18 +6,39 @@ Photo Wallet is a privacy-focused Progressive Web App (PWA) that recreates the e
 
 ## Recent Changes (November 4, 2025)
 
+### Major Architecture Rework: Modal-to-Page Navigation
+- Transformed app from modal-based overlays to proper page-based routing
+- Created four main views: Home (welcome), Album (grid), Photo View (full-screen), Settings
+- Implemented shared Layout component with top bar and bottom navigation
+- Bottom nav with tabs: Home, Album, Settings (always visible on main pages)
+- Back button appears on nested pages and works with browser history
+- Photo viewer now a full route (`/photo/:id`) instead of modal overlay
+- Swipe navigation between photos updates URL while staying on photo route
+- Photos load once at app level (Layout), shared across all pages
+
+### New Routing Structure
+- `/` - Home/Welcome screen (auto-redirects returning users to Album)
+- `/album` - Photo grid with upload and management
+- `/photo/:id` - Full-screen photo viewer with gesture controls
+- `/settings` - Settings page with theme, backup, reset options
+- `/github-setup` - GitHub backup workflow
+
+### Service Worker Improvements
+- Changed to network-first strategy in development mode
+- Eliminates aggressive caching issues during development
+- Updated cache version to `photo-wallet-v3`
+- Maintains cache-first strategy in production for offline support
+
 ### Fixed React Hooks Violation in PhotoViewer
-- Consolidated all conditional returns in PhotoViewer component to occur AFTER all hooks
-- Ensures consistent hook call order across all renders (useState, useRef, useEffect, useGesture, useTransform)
+- Consolidated all conditional returns to occur AFTER all hooks
+- Ensures consistent hook call order across renders
 - Fixed "Rendered more hooks than during the previous render" error
-- Component now properly renders only when all conditions are met: isOpen, currentPhoto exists, URLs are ready, and not in closing state
 
 ### Added Nuclear Reset Feature
 - Created `/client/src/lib/resetApp.ts` utility for complete app data clearing
-- Added "Nuclear Reset" button in Settings dialog (Danger Zone section)
-- Clears: IndexedDB (all photos), Service Workers, Cache API, localStorage, sessionStorage
-- Automatically reloads page after reset to ensure clean state
-- Provides solution for PWA caching/sync issues between Replit preview panel and external windows
+- Clears: IndexedDB, Service Workers, Cache API, localStorage, sessionStorage
+- Accessible from Settings > Danger Zone
+- Provides solution for PWA caching/sync issues
 
 ## User Preferences
 
