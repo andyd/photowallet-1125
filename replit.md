@@ -6,6 +6,13 @@ Photo Wallet is a privacy-focused Progressive Web App (PWA) that recreates the e
 
 ## Recent Changes (November 4, 2025)
 
+### Added Tap Navigation with Looping
+- Tap left 30% of photo screen to go to previous photo
+- Tap right 30% of photo screen to go to next photo
+- Photos loop around at both ends (first photo ← last photo, last photo → first photo)
+- Only active when not zoomed in to avoid conflicts with pan gestures
+- Updated instruction text to "Tap edges or swipe"
+
 ### Major Architecture Rework: Modal-to-Page Navigation
 - Transformed app from modal-based overlays to proper page-based routing
 - Created four main views: Home (welcome), Album (grid), Photo View (full-screen), Settings
@@ -96,13 +103,14 @@ Preferred communication style: Simple, everyday language.
 ### Gesture-Based Interactions
 
 **Photo Viewer Gestures**:
-- Swipe left/right for navigation between photos
-- Pinch-to-zoom (1x to 3x scaling)
-- Double-tap to toggle between fit-to-screen and zoomed states
-- Pan/drag when zoomed to explore photos
-- Swipe down to close viewer
+- **Tap Navigation**: Tap left 30% of screen to go to previous photo, right 30% to go to next photo (with looping at both ends)
+- **Swipe Navigation**: Swipe left/right to navigate between photos
+- **Pinch-to-zoom**: 1x to 3x scaling
+- **Double-tap**: Toggle between fit-to-screen and zoomed states
+- **Pan/drag**: When zoomed in, drag to explore photos
+- **Swipe down**: Close viewer and return to album
 
-**Implementation**: Uses `@use-gesture/react` library for unified gesture handling with Framer Motion for smooth animations.
+**Implementation**: Uses `@use-gesture/react` library for unified gesture handling with Framer Motion for smooth animations. Tap navigation uses click event detection with zone-based navigation areas.
 
 ### File Upload Handling
 

@@ -164,6 +164,33 @@ export default function PhotoView() {
     }
   };
 
+  const handleTapNavigation = (e: React.MouseEvent) => {
+    // Only handle taps when not zoomed
+    if (scale > 1) return;
+    
+    const target = e.currentTarget as HTMLElement;
+    const rect = target.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const clickWidth = rect.width;
+    const tapZone = clickWidth * 0.3; // 30% on each side
+    
+    if (clickX < tapZone) {
+      // Tap on left - go to previous photo (with looping)
+      const prevIndex = currentIndex > 0 ? currentIndex - 1 : photos.length - 1;
+      const prevPhoto = photos[prevIndex];
+      if (prevPhoto) {
+        navigate(`/photo/${prevPhoto.id}`, { replace: true });
+      }
+    } else if (clickX > clickWidth - tapZone) {
+      // Tap on right - go to next photo (with looping)
+      const nextIndex = currentIndex < photos.length - 1 ? currentIndex + 1 : 0;
+      const nextPhoto = photos[nextIndex];
+      if (nextPhoto) {
+        navigate(`/photo/${nextPhoto.id}`, { replace: true });
+      }
+    }
+  };
+
   const currentPhoto = photos[currentIndex];
   const currentUrl = currentPhoto ? imageUrls.get(currentPhoto.id) : null;
 
@@ -217,7 +244,8 @@ export default function PhotoView() {
                   <div
                     ref={imageRef}
                     {...bind()}
-                    className="relative w-full h-full flex items-center justify-center touch-none"
+                    onClick={handleTapNavigation}
+                    className="relative w-full h-full flex items-center justify-center touch-none cursor-pointer"
                     style={{
                       transform: `scale(${scale}) translate(${position.x}px, ${position.y}px)`,
                       transition: 'transform 0.2s ease-out',
@@ -242,7 +270,7 @@ export default function PhotoView() {
       {scale === 1 && (
         <div className="absolute bottom-20 left-0 right-0 p-4 text-center">
           <p className="text-white/60 text-sm">
-            Swipe left/right • Pinch to zoom • Double tap • Swipe down to close
+            Tap edges or swipe • Pinch to zoom • Double tap • Swipe down to close
           </p>
         </div>
       )}
