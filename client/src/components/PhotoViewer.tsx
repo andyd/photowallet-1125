@@ -54,22 +54,31 @@ export function PhotoViewer({
 
   // Create object URLs in useEffect but track when they're ready
   useEffect(() => {
+    console.log('[PhotoViewer] useEffect triggered:', { isOpen, photosCount: photos.length });
+    
     if (!isOpen || photos.length === 0) {
       setImageUrls(new Map());
       setUrlsReady(false);
       return;
     }
 
+    console.log('[PhotoViewer] Creating URLs for', photos.length, 'photos');
+    console.log('[PhotoViewer] First photo blob:', photos[0]?.blob);
+    
     const urls = new Map<string, string>();
-    photos.forEach((photo) => {
+    photos.forEach((photo, idx) => {
+      console.log(`[PhotoViewer] Creating URL for photo ${idx}:`, { id: photo.id, hasBlob: !!photo.blob, blobType: photo.blob?.type });
       const url = URL.createObjectURL(photo.blob);
+      console.log(`[PhotoViewer] Created URL:`, url);
       urls.set(photo.id, url);
     });
 
+    console.log('[PhotoViewer] All URLs created:', urls.size);
     setImageUrls(urls);
     setUrlsReady(true);
 
     return () => {
+      console.log('[PhotoViewer] Cleanup: revoking', urls.size, 'URLs');
       urls.forEach((url) => URL.revokeObjectURL(url));
       setUrlsReady(false);
     };
