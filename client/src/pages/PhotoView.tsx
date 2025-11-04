@@ -88,6 +88,20 @@ export default function PhotoView() {
     };
   }, [carouselApi, photos, id, navigate]);
 
+  // Handle Escape key to close photo viewer
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        handleClose();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
   // Gestures for zoom and pan
   const bind = useGesture(
     {
@@ -270,7 +284,7 @@ export default function PhotoView() {
       {scale === 1 && (
         <div className="absolute bottom-20 left-0 right-0 p-4 text-center">
           <p className="text-white/60 text-sm">
-            Tap edges or swipe • Pinch to zoom • Double tap • Swipe down to close
+            Tap edges or swipe • Pinch to zoom • Double tap • Swipe down or Esc to close
           </p>
         </div>
       )}

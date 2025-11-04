@@ -11,7 +11,9 @@ Photo Wallet is a privacy-focused Progressive Web App (PWA) that recreates the e
 - Tap right 30% of photo screen to go to next photo
 - Photos loop around at both ends (first photo ← last photo, last photo → first photo)
 - Only active when not zoomed in to avoid conflicts with pan gestures
-- Updated instruction text to "Tap edges or swipe"
+- Added Escape key support to close photo viewer (keyboard accessibility)
+- Swipe down gesture already exits to album
+- Updated instruction text to "Tap edges or swipe • Swipe down or Esc to close"
 
 ### Major Architecture Rework: Modal-to-Page Navigation
 - Transformed app from modal-based overlays to proper page-based routing
@@ -108,9 +110,9 @@ Preferred communication style: Simple, everyday language.
 - **Pinch-to-zoom**: 1x to 3x scaling
 - **Double-tap**: Toggle between fit-to-screen and zoomed states
 - **Pan/drag**: When zoomed in, drag to explore photos
-- **Swipe down**: Close viewer and return to album
+- **Swipe down or Escape**: Close viewer and return to album
 
-**Implementation**: Uses `@use-gesture/react` library for unified gesture handling with Framer Motion for smooth animations. Tap navigation uses click event detection with zone-based navigation areas.
+**Implementation**: Uses `@use-gesture/react` library for unified gesture handling with Framer Motion for smooth animations. Tap navigation uses click event detection with zone-based navigation areas. Escape key provides keyboard accessibility for closing the viewer.
 
 ### File Upload Handling
 
