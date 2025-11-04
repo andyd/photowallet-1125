@@ -54,31 +54,22 @@ export function PhotoViewer({
 
   // Create object URLs in useEffect but track when they're ready
   useEffect(() => {
-    console.log('[PhotoViewer] useEffect triggered:', { isOpen, photosCount: photos.length });
-    
     if (!isOpen || photos.length === 0) {
       setImageUrls(new Map());
       setUrlsReady(false);
       return;
     }
 
-    console.log('[PhotoViewer] Creating URLs for', photos.length, 'photos');
-    console.log('[PhotoViewer] First photo blob:', photos[0]?.blob);
-    
     const urls = new Map<string, string>();
-    photos.forEach((photo, idx) => {
-      console.log(`[PhotoViewer] Creating URL for photo ${idx}:`, { id: photo.id, hasBlob: !!photo.blob, blobType: photo.blob?.type });
+    photos.forEach((photo) => {
       const url = URL.createObjectURL(photo.blob);
-      console.log(`[PhotoViewer] Created URL:`, url);
       urls.set(photo.id, url);
     });
 
-    console.log('[PhotoViewer] All URLs created:', urls.size);
     setImageUrls(urls);
     setUrlsReady(true);
 
     return () => {
-      console.log('[PhotoViewer] Cleanup: revoking', urls.size, 'URLs');
       urls.forEach((url) => URL.revokeObjectURL(url));
       setUrlsReady(false);
     };
@@ -307,21 +298,14 @@ export function PhotoViewer({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen]);
 
-  // These hooks must be called before any conditional returns
+  // These hooks must be called before any conditional logic
   const closingScale = useTransform(closingProgress, [0, 1], [1, 0.3]);
   const closingOpacity = useTransform(closingProgress, [0, 1], [1, 0]);
 
-  // Now we can do conditional returns after all hooks have been called
-  if (!isOpen || !currentPhoto) {
+  // Don't render anything if conditions aren't met - return null as JSX, not early return
+  if (!isOpen || !currentPhoto || !urlsReady || imageUrls.size === 0 || (isClosing && closingProgress.get() >= 0.99)) {
     return null;
   }
-  
-  // Don't render until URLs are ready to prevent blank images
-  if (!urlsReady || imageUrls.size === 0) {
-    return null;
-  }
-  
-  if (isClosing && closingProgress.get() >= 0.99) return null;
 
   return (
     <AnimatePresence>
