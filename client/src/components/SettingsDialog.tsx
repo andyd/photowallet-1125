@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Settings, Trash2, Images, Moon, Sun, Monitor, Download, Github, Archive } from 'lucide-react';
+import { Settings, Trash2, Images, Moon, Sun, Monitor, Download, Github, Archive, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Link } from 'wouter';
@@ -25,6 +25,7 @@ import { ManagePhotosDialog } from './ManagePhotosDialog';
 import { ArchiveDialog } from './ArchiveDialog';
 import { useTheme } from '@/components/ThemeProvider';
 import { usePWA } from '@/hooks/usePWA';
+import { resetAppData } from '@/lib/resetApp';
 import type { Photo } from '@shared/schema';
 
 interface SettingsDialogProps {
@@ -36,6 +37,7 @@ interface SettingsDialogProps {
 export function SettingsDialog({ photos, onResetApp, onDeletePhoto }: SettingsDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [showNuclearResetConfirm, setShowNuclearResetConfirm] = useState(false);
   const [showManagePhotos, setShowManagePhotos] = useState(false);
   const [showArchiveDialog, setShowArchiveDialog] = useState(false);
   const { theme, setTheme } = useTheme();
@@ -45,6 +47,12 @@ export function SettingsDialog({ photos, onResetApp, onDeletePhoto }: SettingsDi
     onResetApp();
     setShowResetConfirm(false);
     setIsOpen(false);
+  };
+
+  const handleNuclearReset = async () => {
+    setShowNuclearResetConfirm(false);
+    setIsOpen(false);
+    await resetAppData();
   };
 
   const handleManagePhotos = () => {
@@ -190,6 +198,15 @@ export function SettingsDialog({ photos, onResetApp, onDeletePhoto }: SettingsDi
                 <Trash2 className="w-4 h-4 mr-2" />
                 Reset App & Delete All Photos
               </Button>
+              <Button
+                variant="destructive"
+                className="w-full justify-start bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800"
+                onClick={() => setShowNuclearResetConfirm(true)}
+                data-testid="button-nuclear-reset"
+              >
+                <RotateCcw className="w-4 h-4 mr-2" />
+                Nuclear Reset (Clear Everything)
+              </Button>
             </div>
           </div>
         </DialogContent>
@@ -223,6 +240,36 @@ export function SettingsDialog({ photos, onResetApp, onDeletePhoto }: SettingsDi
               data-testid="button-confirm-reset"
             >
               Delete All Photos
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={showNuclearResetConfirm} onOpenChange={setShowNuclearResetConfirm}>
+        <AlertDialogContent data-testid="dialog-nuclear-reset-confirm">
+          <AlertDialogHeader>
+            <AlertDialogTitle>🔥 Nuclear Reset - Clear Everything?</AlertDialogTitle>
+            <AlertDialogDescription className="space-y-2">
+              <p className="font-semibold">This will completely reset the app and clear:</p>
+              <ul className="list-disc pl-5 space-y-1 text-sm">
+                <li>All photos and archived photos</li>
+                <li>All cached data</li>
+                <li>Service worker and PWA data</li>
+                <li>All local storage</li>
+              </ul>
+              <p className="font-semibold text-red-600 dark:text-red-400">
+                The page will reload after reset. This action cannot be undone.
+              </p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel data-testid="button-cancel-nuclear-reset">Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleNuclearReset}
+              className="bg-red-600 text-white hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800"
+              data-testid="button-confirm-nuclear-reset"
+            >
+              🔥 Nuclear Reset & Reload
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

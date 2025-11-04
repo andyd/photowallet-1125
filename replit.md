@@ -4,6 +4,21 @@
 
 Photo Wallet is a privacy-focused Progressive Web App (PWA) that recreates the experience of carrying cherished photos in a physical wallet. Users can store up to 18 photos locally on their device and view them in a beautiful, full-screen experience with intuitive gesture controls. The application operates entirely offline with no server-side photo storage, emphasizing privacy and local-first architecture.
 
+## Recent Changes (November 4, 2025)
+
+### Fixed React Hooks Violation in PhotoViewer
+- Consolidated all conditional returns in PhotoViewer component to occur AFTER all hooks
+- Ensures consistent hook call order across all renders (useState, useRef, useEffect, useGesture, useTransform)
+- Fixed "Rendered more hooks than during the previous render" error
+- Component now properly renders only when all conditions are met: isOpen, currentPhoto exists, URLs are ready, and not in closing state
+
+### Added Nuclear Reset Feature
+- Created `/client/src/lib/resetApp.ts` utility for complete app data clearing
+- Added "Nuclear Reset" button in Settings dialog (Danger Zone section)
+- Clears: IndexedDB (all photos), Service Workers, Cache API, localStorage, sessionStorage
+- Automatically reloads page after reset to ensure clean state
+- Provides solution for PWA caching/sync issues between Replit preview panel and external windows
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
