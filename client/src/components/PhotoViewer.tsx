@@ -49,10 +49,15 @@ export function PhotoViewer({
 
   const { canShare, sharePhoto } = useWebShare();
 
-  // Create object URLs synchronously using useMemo so they're available on first render
-  const imageUrls = useMemo(() => {
+  const [imageUrls, setImageUrls] = useState<Map<string, string>>(new Map());
+  const [urlsReady, setUrlsReady] = useState(false);
+
+  // Create object URLs in useEffect but track when they're ready
+  useEffect(() => {
     if (!isOpen || photos.length === 0) {
-      return new Map<string, string>();
+      setImageUrls(new Map());
+      setUrlsReady(false);
+      return;
     }
 
     const urls = new Map<string, string>();
@@ -61,15 +66,14 @@ export function PhotoViewer({
       urls.set(photo.id, url);
     });
 
-    return urls;
-  }, [isOpen, photos]);
+    setImageUrls(urls);
+    setUrlsReady(true);
 
-  // Cleanup URLs when they change
-  useEffect(() => {
     return () => {
-      imageUrls.forEach((url) => URL.revokeObjectURL(url));
+      urls.forEach((url) => URL.revokeObjectURL(url));
+      setUrlsReady(false);
     };
-  }, [imageUrls]);
+  }, [isOpen, photos]);
 
   // Sync carousel with currentIndex
   useEffect(() => {
@@ -307,6 +311,13 @@ export function PhotoViewer({
     console.log('PhotoViewer - Not rendering. isOpen:', isOpen, 'currentPhoto:', !!currentPhoto);
     return null;
   }
+  
+  // Don't render until URLs are ready to prevent blank images
+  if (!urlsReady || imageUrls.size === 0) {
+    console.log('PhotoViewer - Waiting for URLs. urlsReady:', urlsReady, 'imageUrls.size:', imageUrls.size);
+    return null;
+  }
+  
   if (isClosing && closingProgress.get() >= 0.99) return null;
 
   const closingScale = useTransform(closingProgress, [0, 1], [1, 0.3]);
