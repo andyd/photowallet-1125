@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { X, Share2, Trash2 } from 'lucide-react';
 import { useGesture } from '@use-gesture/react';
 import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'framer-motion';
@@ -32,7 +32,6 @@ export function PhotoViewer({
   onIndexChange,
   onDeletePhoto,
 }: PhotoViewerProps) {
-  const [imageUrls, setImageUrls] = useState<Map<string, string>>(new Map());
   const [scale, setScale] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [showUI, setShowUI] = useState(true);
@@ -49,6 +48,28 @@ export function PhotoViewer({
   const currentPhoto = photos[currentIndex];
 
   const { canShare, sharePhoto } = useWebShare();
+
+  // Create object URLs synchronously using useMemo so they're available on first render
+  const imageUrls = useMemo(() => {
+    if (!isOpen || photos.length === 0) {
+      return new Map<string, string>();
+    }
+
+    const urls = new Map<string, string>();
+    photos.forEach((photo) => {
+      const url = URL.createObjectURL(photo.blob);
+      urls.set(photo.id, url);
+    });
+
+    return urls;
+  }, [isOpen, photos]);
+
+  // Cleanup URLs when they change
+  useEffect(() => {
+    return () => {
+      imageUrls.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [imageUrls]);
 
   // Sync carousel with currentIndex
   useEffect(() => {
@@ -71,23 +92,6 @@ export function PhotoViewer({
       carouselApi.off('select', onSelect);
     };
   }, [carouselApi, onIndexChange]);
-
-  // Create object URLs for all photos
-  useEffect(() => {
-    if (!isOpen || photos.length === 0) return;
-
-    const newUrls = new Map<string, string>();
-    photos.forEach((photo) => {
-      const url = URL.createObjectURL(photo.blob);
-      newUrls.set(photo.id, url);
-    });
-
-    setImageUrls(newUrls);
-
-    return () => {
-      newUrls.forEach((url) => URL.revokeObjectURL(url));
-    };
-  }, [isOpen, photos]);
 
   useEffect(() => {
     setScale(1);
@@ -290,7 +294,19 @@ export function PhotoViewer({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen]);
 
-  if (!isOpen || !currentPhoto) return null;
+  // Debug logging
+  useEffect(() => {
+    console.log('PhotoViewer - isOpen:', isOpen);
+    console.log('PhotoViewer - currentIndex:', currentIndex);
+    console.log('PhotoViewer - photos.length:', photos.length);
+    console.log('PhotoViewer - currentPhoto:', currentPhoto);
+    console.log('PhotoViewer - imageUrls size:', imageUrls.size);
+  }, [isOpen, currentIndex, photos.length, currentPhoto, imageUrls]);
+
+  if (!isOpen || !currentPhoto) {
+    console.log('PhotoViewer - Not rendering. isOpen:', isOpen, 'currentPhoto:', !!currentPhoto);
+    return null;
+  }
   if (isClosing && closingProgress.get() >= 0.99) return null;
 
   const closingScale = useTransform(closingProgress, [0, 1], [1, 0.3]);
