@@ -1,11 +1,14 @@
-const CACHE_NAME = 'photo-wallet-v2';
+const CACHE_NAME = 'photo-wallet-v3';
 const ASSETS_TO_CACHE = [
-  '/',
-  '/index.html',
   '/manifest.json',
   '/icon-192.png',
   '/icon-512.png'
 ];
+
+// Detect if we're in development mode
+const isDevelopment = self.location.hostname === 'localhost' || 
+                      self.location.hostname.includes('replit.dev') ||
+                      self.location.hostname.includes('127.0.0.1');
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -36,25 +39,48 @@ self.addEventListener('fetch', (event) => {
   // Skip chrome-extension and other non-http(s) requests
   if (!event.request.url.startsWith('http')) return;
 
-  event.respondWith(
-    caches.match(event.request).then((response) => {
-      if (response) {
-        return response;
-      }
-
-      return fetch(event.request).then((response) => {
-        // Don't cache non-successful responses
-        if (!response || response.status !== 200 || response.type !== 'basic') {
+  // In development: NETWORK-FIRST (always try to fetch fresh content)
+  // In production: CACHE-FIRST (serve from cache for offline support)
+  if (isDevelopment) {
+    // Network-first strategy for development
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          // Cache the fresh response
+          if (response && response.status === 200 && response.type === 'basic') {
+            const responseToCache = response.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, responseToCache);
+            });
+          }
+          return response;
+        })
+        .catch(() => {
+          // If network fails, try cache as fallback
+          return caches.match(event.request);
+        })
+    );
+  } else {
+    // Cache-first strategy for production
+    event.respondWith(
+      caches.match(event.request).then((response) => {
+        if (response) {
           return response;
         }
 
-        const responseToCache = response.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache);
-        });
+        return fetch(event.request).then((response) => {
+          if (!response || response.status !== 200 || response.type !== 'basic') {
+            return response;
+          }
 
-        return response;
-      });
-    })
-  );
+          const responseToCache = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
+
+          return response;
+        });
+      })
+    );
+  }
 });
