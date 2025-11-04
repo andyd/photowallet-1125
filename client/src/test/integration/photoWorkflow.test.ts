@@ -26,6 +26,14 @@ describe('Photo Workflow Integration Tests', () => {
     vi.mocked(photoStorage.reorderPhotos).mockResolvedValue();
     vi.mocked(photoStorage.archivePhoto).mockResolvedValue();
     vi.mocked(photoStorage.unarchivePhoto).mockResolvedValue();
+    // Reset the photo store between tests to avoid shared state
+    usePhotoStore.setState({
+      photos: [],
+      isLoading: false,
+      currentPhotoIndex: null,
+      isViewerOpen: false,
+      archivedPhotos: [],
+    } as any);
   });
 
   describe('Complete Photo Lifecycle', () => {

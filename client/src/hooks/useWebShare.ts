@@ -18,7 +18,8 @@ export function useWebShare() {
   const [error, setError] = useState<string | null>(null);
 
   // Check if Web Share API is available
-  const canShare = typeof navigator !== 'undefined' && 'share' in navigator;
+  const canShare =
+    typeof navigator !== 'undefined' && typeof (navigator as any).share === 'function';
 
   /**
    * Share a photo using the Web Share API

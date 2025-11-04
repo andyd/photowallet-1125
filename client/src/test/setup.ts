@@ -56,3 +56,16 @@ global.ResizeObserver = class ResizeObserver {
 // Mock URL.createObjectURL and revokeObjectURL
 global.URL.createObjectURL = vi.fn(() => 'mock-url');
 global.URL.revokeObjectURL = vi.fn();
+
+// Polyfill File/Blob arrayBuffer in test environment if missing
+if (!(Blob.prototype as any).arrayBuffer) {
+  (Blob.prototype as any).arrayBuffer = function () {
+    return new Response(this).arrayBuffer();
+  };
+}
+
+if (typeof File !== 'undefined' && !(File.prototype as any).arrayBuffer) {
+  (File.prototype as any).arrayBuffer = function () {
+    return new Response(this).arrayBuffer();
+  };
+}

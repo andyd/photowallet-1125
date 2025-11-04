@@ -3,46 +3,41 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { EmptyState } from '../EmptyState';
 
 describe('EmptyState', () => {
-  const mockOnAddPhoto = vi.fn();
+  const mockOnUploadClick = vi.fn();
 
   it('renders empty state with heading', () => {
-    render(<EmptyState onAddPhoto={mockOnAddPhoto} />);
-
-    expect(screen.getByText('Your Photo Wallet is Empty')).toBeInTheDocument();
+    render(<EmptyState onUploadClick={mockOnUploadClick} />);
+    expect(screen.getByText('Photo Wallet')).toBeInTheDocument();
   });
 
   it('renders descriptive text', () => {
-    render(<EmptyState onAddPhoto={mockOnAddPhoto} />);
-
+    render(<EmptyState onUploadClick={mockOnUploadClick} />);
     expect(
-      screen.getByText(/Add up to 12 photos that matter most to you/i)
+      screen.getByText(/The photos you want with you all the time/i)
     ).toBeInTheDocument();
   });
 
   it('renders add photo button', () => {
-    render(<EmptyState onAddPhoto={mockOnAddPhoto} />);
-
-    expect(screen.getByText('Add Your First Photo')).toBeInTheDocument();
+    render(<EmptyState onUploadClick={mockOnUploadClick} />);
+    expect(screen.getByText('Add Photos')).toBeInTheDocument();
   });
 
   it('calls onAddPhoto when button is clicked', () => {
-    render(<EmptyState onAddPhoto={mockOnAddPhoto} />);
-
-    const button = screen.getByText('Add Your First Photo');
+    render(<EmptyState onUploadClick={mockOnUploadClick} />);
+    const button = screen.getByTestId('button-add-first-photo');
     fireEvent.click(button);
-
-    expect(mockOnAddPhoto).toHaveBeenCalled();
+    expect(mockOnUploadClick).toHaveBeenCalled();
   });
 
   it('displays wallet icon', () => {
-    const { container } = render(<EmptyState onAddPhoto={mockOnAddPhoto} />);
+    const { container } = render(<EmptyState onUploadClick={mockOnUploadClick} />);
 
     const svg = container.querySelector('svg');
     expect(svg).toBeInTheDocument();
   });
 
   it('has centered layout classes', () => {
-    const { container } = render(<EmptyState onAddPhoto={mockOnAddPhoto} />);
+    const { container } = render(<EmptyState onUploadClick={mockOnUploadClick} />);
 
     const emptyState = container.firstChild;
     expect(emptyState).toHaveClass('flex');

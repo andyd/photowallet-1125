@@ -35,16 +35,19 @@ describe('thumbnailGenerator', () => {
       return document.createElement(tagName);
     });
 
-    // Mock Image constructor
-    mockImage = {
-      width: 800,
-      height: 600,
-      src: '',
-      onload: null as any,
-      onerror: null as any,
-    };
-
-    global.Image = vi.fn().mockImplementation(() => mockImage) as any;
+    // Mock Image constructor to return a fresh instance per call
+    global.Image = vi.fn().mockImplementation(() => {
+      const instance: any = {
+        width: 800,
+        height: 600,
+        src: '',
+        onload: null,
+        onerror: null,
+      };
+      return instance;
+    }) as any;
+    // Keep a reference for single-file tests
+    mockImage = new (global.Image as any)();
 
     // Mock URL methods
     global.URL.createObjectURL = vi.fn(() => 'mock-url');
@@ -54,10 +57,10 @@ describe('thumbnailGenerator', () => {
   describe('generateThumbnail', () => {
     it('should generate a thumbnail from a file', async () => {
       const promise = generateThumbnail(mockFile);
-
-      // Simulate image load
-      if (mockImage.onload) {
-        mockImage.onload();
+      // Simulate image load on this instance
+      const lastCall = (global.Image as unknown as vi.Mock).mock.results.at(-1)?.value;
+      if (lastCall && lastCall.onload) {
+        lastCall.onload();
       }
 
       const result = await promise;
@@ -73,9 +76,9 @@ describe('thumbnailGenerator', () => {
       mockImage.height = 600;
 
       const promise = generateThumbnail(mockFile);
-
-      if (mockImage.onload) {
-        mockImage.onload();
+      const lastCall = (global.Image as unknown as vi.Mock).mock.results.at(-1)?.value;
+      if (lastCall && lastCall.onload) {
+        lastCall.onload();
       }
 
       await promise;
@@ -99,9 +102,9 @@ describe('thumbnailGenerator', () => {
       mockImage.height = 800;
 
       const promise = generateThumbnail(mockFile);
-
-      if (mockImage.onload) {
-        mockImage.onload();
+      const lastCall = (global.Image as unknown as vi.Mock).mock.results.at(-1)?.value;
+      if (lastCall && lastCall.onload) {
+        lastCall.onload();
       }
 
       await promise;
@@ -176,11 +179,13 @@ describe('thumbnailGenerator', () => {
 
       const promise = generateThumbnails(files);
 
-      // Simulate all images loading
+      // Simulate each image loading independently
       setTimeout(() => {
-        if (mockImage.onload) {
-          mockImage.onload();
-        }
+        const calls = (global.Image as unknown as vi.Mock).mock.results;
+        calls.forEach((res) => {
+          const inst: any = res.value;
+          inst?.onload && inst.onload();
+        });
       }, 0);
 
       const results = await promise;

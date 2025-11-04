@@ -1,4 +1,4 @@
-const CACHE_NAME = 'photo-wallet-v1';
+const CACHE_NAME = 'photo-wallet-v2';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',

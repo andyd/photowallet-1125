@@ -162,7 +162,7 @@ export function PhotoViewer({
         }
         hideUITimeoutRef.current = setTimeout(() => {
           setShowUI(false);
-        }, 3000);
+        }, 1657);
       }
     }
   };
@@ -348,20 +348,20 @@ export function PhotoViewer({
         </motion.div>
 
         <Carousel
-          className="w-full h-full flex items-center"
+          className="w-full h-full flex items-center justify-center"
           setApi={setCarouselApi}
           opts={{
             loop: true,
             startIndex: currentIndex,
           }}
         >
-          <CarouselContent className="h-full items-center">
-            {photos.map((photo) => (
-              <CarouselItem key={photo.id} className="h-full flex items-center justify-center">
+          <CarouselContent className="h-full items-center ml-0">
+            {photos.map((photo, index) => (
+              <CarouselItem key={photo.id} className="h-full flex items-center justify-center pl-0">
                 <div
                   ref={imageContainerRef}
                   {...bind()}
-                  className="relative w-full h-full flex items-center justify-center touch-none"
+                  className="relative w-screen h-full flex items-center justify-center touch-none"
                   role="img"
                   aria-label={`Photo: ${photo.filename}`}
                   style={{
@@ -369,6 +369,7 @@ export function PhotoViewer({
                   }}
                 >
                   <motion.div
+                    className="flex items-center justify-center"
                     style={{
                       x: dragOffsetX,
                       y: dragOffsetY,
@@ -376,17 +377,19 @@ export function PhotoViewer({
                       opacity: isClosing ? closingOpacity : undefined,
                     }}
                   >
-                    <motion.img
-                      src={URL.createObjectURL(photo.blob)}
-                      alt={photo.filename}
-                      className="max-w-full max-h-full object-contain select-none"
-                      style={{
-                        transform: scale > 1
-                          ? `translate(${position.x / scale}px, ${position.y / scale}px)`
-                          : undefined,
-                      }}
-                      data-testid="img-viewer-photo"
-                    />
+                    {index === currentIndex && (
+                      <motion.img
+                        src={imageUrl}
+                        alt={photo.filename}
+                        className="max-w-[100vw] max-h-[100vh] w-auto h-auto object-contain select-none"
+                        style={{
+                          transform: scale > 1
+                            ? `translate(${position.x / scale}px, ${position.y / scale}px)`
+                            : undefined,
+                        }}
+                        data-testid="img-viewer-photo"
+                      />
+                    )}
                   </motion.div>
                 </div>
               </CarouselItem>
@@ -399,11 +402,11 @@ export function PhotoViewer({
               animate={{ opacity: showUI && !isClosing ? 1 : 0 }}
             >
               <CarouselPrevious
-                className="left-4 text-white hover:bg-white/20 border-white/50"
+                className="left-4 text-white hover:bg-white/20 border-0"
                 aria-label="Previous photo"
               />
               <CarouselNext
-                className="right-4 text-white hover:bg-white/20 border-white/50"
+                className="right-4 text-white hover:bg-white/20 border-0"
                 aria-label="Next photo"
               />
             </motion.div>
