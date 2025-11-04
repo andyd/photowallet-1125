@@ -298,23 +298,12 @@ export function PhotoViewer({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen]);
 
-  // Debug logging
-  useEffect(() => {
-    console.log('PhotoViewer - isOpen:', isOpen);
-    console.log('PhotoViewer - currentIndex:', currentIndex);
-    console.log('PhotoViewer - photos.length:', photos.length);
-    console.log('PhotoViewer - currentPhoto:', currentPhoto);
-    console.log('PhotoViewer - imageUrls size:', imageUrls.size);
-  }, [isOpen, currentIndex, photos.length, currentPhoto, imageUrls]);
-
   if (!isOpen || !currentPhoto) {
-    console.log('PhotoViewer - Not rendering. isOpen:', isOpen, 'currentPhoto:', !!currentPhoto);
     return null;
   }
   
   // Don't render until URLs are ready to prevent blank images
   if (!urlsReady || imageUrls.size === 0) {
-    console.log('PhotoViewer - Waiting for URLs. urlsReady:', urlsReady, 'imageUrls.size:', imageUrls.size);
     return null;
   }
   
