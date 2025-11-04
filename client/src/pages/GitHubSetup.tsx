@@ -53,10 +53,6 @@ export default function GitHubSetup() {
       const data = await response.json();
 
       setRepoData(data.repo);
-      toast({
-        title: "Repository Created!",
-        description: `Successfully created ${data.repo.name} on GitHub`,
-      });
     } catch (error: any) {
       toast({
         title: "Error",

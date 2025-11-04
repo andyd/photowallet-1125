@@ -3,7 +3,6 @@ import { Download, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { usePWA } from '@/hooks/usePWA';
-import { useToast } from '@/hooks/use-toast';
 
 interface InstallBannerProps {
   photoCount: number;
@@ -11,7 +10,6 @@ interface InstallBannerProps {
 
 export function InstallBanner({ photoCount }: InstallBannerProps) {
   const { isInstallable, installApp } = usePWA();
-  const { toast } = useToast();
   const [isDismissed, setIsDismissed] = useState(false);
   const [showBanner, setShowBanner] = useState(false);
 
@@ -29,10 +27,6 @@ export function InstallBanner({ photoCount }: InstallBannerProps) {
   const handleInstall = async () => {
     const accepted = await installApp();
     if (accepted) {
-      toast({
-        title: 'Installing...',
-        description: 'Photo Wallet is being added to your home screen',
-      });
       setShowBanner(false);
     }
   };

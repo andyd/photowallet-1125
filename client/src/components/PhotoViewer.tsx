@@ -124,23 +124,46 @@ export function PhotoViewer({
     setShowTutorial(false);
   };
 
-  const handleTap = () => {
-    // Toggle UI visibility on tap
-    if (showUI) {
-      // If already showing, hide it
-      setShowUI(false);
-      if (hideUITimeoutRef.current) {
-        clearTimeout(hideUITimeoutRef.current);
+  const handleTap = (e: React.MouseEvent) => {
+    // Don't navigate if zoomed in
+    if (scale > 1) {
+      return;
+    }
+
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const width = rect.width;
+
+    // Divide screen into thirds: left, center, right
+    const leftThird = width / 3;
+    const rightThird = (width * 2) / 3;
+
+    if (x < leftThird) {
+      // Tap on left third - go to previous
+      if (carouselApi && photos.length > 1) {
+        carouselApi.scrollPrev();
+      }
+    } else if (x > rightThird) {
+      // Tap on right third - go to next
+      if (carouselApi && photos.length > 1) {
+        carouselApi.scrollNext();
       }
     } else {
-      // If hidden, show it and auto-hide after 3 seconds
-      setShowUI(true);
-      if (hideUITimeoutRef.current) {
-        clearTimeout(hideUITimeoutRef.current);
-      }
-      hideUITimeoutRef.current = setTimeout(() => {
+      // Tap in center third - toggle UI
+      if (showUI) {
         setShowUI(false);
-      }, 3000);
+        if (hideUITimeoutRef.current) {
+          clearTimeout(hideUITimeoutRef.current);
+        }
+      } else {
+        setShowUI(true);
+        if (hideUITimeoutRef.current) {
+          clearTimeout(hideUITimeoutRef.current);
+        }
+        hideUITimeoutRef.current = setTimeout(() => {
+          setShowUI(false);
+        }, 3000);
+      }
     }
   };
 
@@ -325,14 +348,14 @@ export function PhotoViewer({
         </motion.div>
 
         <Carousel
-          className="w-full h-full"
+          className="w-full h-full flex items-center"
           setApi={setCarouselApi}
           opts={{
             loop: true,
             startIndex: currentIndex,
           }}
         >
-          <CarouselContent className="h-full">
+          <CarouselContent className="h-full items-center">
             {photos.map((photo) => (
               <CarouselItem key={photo.id} className="h-full flex items-center justify-center">
                 <div
@@ -341,7 +364,6 @@ export function PhotoViewer({
                   className="relative w-full h-full flex items-center justify-center touch-none"
                   role="img"
                   aria-label={`Photo: ${photo.filename}`}
-                  onClick={(e) => e.stopPropagation()}
                   style={{
                     cursor: scale > 1 ? 'grab' : 'default',
                   }}

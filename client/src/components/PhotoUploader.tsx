@@ -37,7 +37,6 @@ export function PhotoUploader({ onPhotoSelect, disabled, photoCount, maxPhotos }
       return;
     }
 
-    let successCount = 0;
     let errorCount = 0;
 
     for (const file of fileArray) {
@@ -53,17 +52,9 @@ export function PhotoUploader({ onPhotoSelect, disabled, photoCount, maxPhotos }
 
       try {
         await onPhotoSelect(file);
-        successCount++;
       } catch (error) {
         errorCount++;
       }
-    }
-
-    if (successCount > 0) {
-      toast({
-        title: `${successCount} photo${successCount === 1 ? '' : 's'} added`,
-        description: 'Your photos have been added to your wallet.',
-      });
     }
 
     if (errorCount > 0) {

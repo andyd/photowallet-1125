@@ -25,7 +25,6 @@ import { ManagePhotosDialog } from './ManagePhotosDialog';
 import { ArchiveDialog } from './ArchiveDialog';
 import { useTheme } from '@/components/ThemeProvider';
 import { usePWA } from '@/hooks/usePWA';
-import { useToast } from '@/hooks/use-toast';
 import type { Photo } from '@shared/schema';
 
 interface SettingsDialogProps {
@@ -41,7 +40,6 @@ export function SettingsDialog({ photos, onResetApp, onDeletePhoto }: SettingsDi
   const [showArchiveDialog, setShowArchiveDialog] = useState(false);
   const { theme, setTheme } = useTheme();
   const { isInstallable, isInstalled, installApp } = usePWA();
-  const { toast } = useToast();
 
   const handleReset = () => {
     onResetApp();
@@ -62,10 +60,6 @@ export function SettingsDialog({ photos, onResetApp, onDeletePhoto }: SettingsDi
   const handleInstall = async () => {
     const accepted = await installApp();
     if (accepted) {
-      toast({
-        title: 'Installing...',
-        description: 'Photo Wallet is being added to your home screen',
-      });
       setIsOpen(false);
     }
   };
