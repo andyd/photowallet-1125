@@ -2,7 +2,7 @@
 
 ## Overview
 
-Photo Wallet is a privacy-focused Progressive Web App (PWA) that recreates the experience of carrying cherished photos in a physical wallet. Users can store up to 10 photos locally on their device and view them in a beautiful, full-screen experience with intuitive gesture controls. The application operates entirely offline with no server-side photo storage, emphasizing privacy and local-first architecture.
+Photo Wallet is a privacy-focused Progressive Web App (PWA) that recreates the experience of carrying cherished photos in a physical wallet. Users can store up to 18 photos locally on their device and view them in a beautiful, full-screen experience with intuitive gesture controls. The application operates entirely offline with no server-side photo storage, emphasizing privacy and local-first architecture.
 
 ## User Preferences
 

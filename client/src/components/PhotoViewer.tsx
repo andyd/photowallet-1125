@@ -298,6 +298,11 @@ export function PhotoViewer({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen]);
 
+  // These hooks must be called before any conditional returns
+  const closingScale = useTransform(closingProgress, [0, 1], [1, 0.3]);
+  const closingOpacity = useTransform(closingProgress, [0, 1], [1, 0]);
+
+  // Now we can do conditional returns after all hooks have been called
   if (!isOpen || !currentPhoto) {
     return null;
   }
@@ -308,9 +313,6 @@ export function PhotoViewer({
   }
   
   if (isClosing && closingProgress.get() >= 0.99) return null;
-
-  const closingScale = useTransform(closingProgress, [0, 1], [1, 0.3]);
-  const closingOpacity = useTransform(closingProgress, [0, 1], [1, 0]);
 
   return (
     <AnimatePresence>
